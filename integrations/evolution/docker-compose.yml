@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - .env.evolution
+    environment:
+      POSTGRES_DB: evolution
+      POSTGRES_USER: evolution
+    volumes:
+      - evolution-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolution -d evolution"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - evolution-redis:/data
+
+  evolution:
+    image: evoapicloud/evolution-api:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env.evolution
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - evolution-instances:/evolution/instances
+
+volumes:
+  evolution-postgres:
+  evolution-redis:
+  evolution-instances:

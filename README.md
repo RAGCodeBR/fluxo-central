@@ -19,3 +19,14 @@ npm start
 ```
 
 `GET /health` mostra se a integração foi configurada. `POST /api/messages` envia uma mensagem somente quando as credenciais existirem no ambiente do servidor.
+
+## WhatsApp via Evolution API
+
+Para não depender de um provedor hospedado, existe uma instalação local da Evolution API em `integrations/evolution/`. Ela roda em containers locais, usa um banco próprio e não publica a porta da integração na internet.
+
+1. Copie `integrations/evolution/.env.evolution.example` para `integrations/evolution/.env.evolution` e preencha senhas/chaves únicas.
+2. Execute `docker compose up -d` dentro de `integrations/evolution/`.
+3. Configure `EVOLUTION_API_URL`, `EVOLUTION_API_KEY` e `EVOLUTION_INSTANCE_NAME` no `.env` do backend do Fluxo.
+4. Crie a instância e escaneie o QR Code somente no WhatsApp que será usado pelo sistema.
+
+Para produção, não exponha a Evolution diretamente: publique o backend `server/` com HTTPS e use-o como ponte de webhook.
