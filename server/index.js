@@ -85,13 +85,13 @@ const server = createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/api/integrations/evolution/status') {
       if (config().provider !== 'Evolution API') return send(res, 200, { configured: false, provider: 'Evolution API' });
       const instances = await evolution('/instance/fetchInstances');
-      const instance = instances.find((item) => item.instance?.instanceName === process.env.EVOLUTION_INSTANCE_NAME) || null;
+      const instance = instances.find((item) => item.name === process.env.EVOLUTION_INSTANCE_NAME) || null;
       return send(res, 200, { configured: true, provider: 'Evolution API', instance });
     }
     if (req.method === 'GET' && url.pathname === '/api/integrations/evolution/qr') {
       if (config().provider !== 'Evolution API') return send(res, 409, { error: 'Evolution API não configurada.' });
       const connection = await evolution(`/instance/connect/${encodeURIComponent(process.env.EVOLUTION_INSTANCE_NAME)}`);
-      return send(res, 200, { instance: process.env.EVOLUTION_INSTANCE_NAME, status: connection?.instance?.status || 'connecting', qrcode: connection.base64 || null });
+      return send(res, 200, { instance: process.env.EVOLUTION_INSTANCE_NAME, status: connection?.instance?.connectionStatus || 'connecting', qrcode: connection.base64 || null });
     }
     if (req.method === 'GET' && url.pathname === '/evolution-qr') {
       if (config().provider !== 'Evolution API') {
